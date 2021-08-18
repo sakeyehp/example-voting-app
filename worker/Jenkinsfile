@@ -1,15 +1,16 @@
 pipeline {
-    agent any
-
-    tools{
-        maven 'maven 3.6.1'
+    agent{
+        docker{
+            image 'maven:3.6.1-jdk-8-slim'
+            args '-v $HOME/.m2:/root/.m2'
+        }
     }
 
     stages{
         stage("build"){
-            when {
-                changeset "**/worker/**"
-            }
+            // when {
+            //     changeset "**/worker/**"
+            // }
 
             steps{
                 echo "Compiling worker app"
@@ -20,9 +21,9 @@ pipeline {
         }
 
         stage("test"){
-            when {
-                changeset "**/worker/**"
-            }
+            // when {
+            //     changeset "**/worker/**"
+            // }
 
             steps{
                 echo "Running Unit Test on worker app"
@@ -33,12 +34,12 @@ pipeline {
         }
 
         stage("package"){
-            when{
-                branch 'master'
-                changeset "**/worker/**"
-            }
+            // when{
+            //     branch 'master'
+            //     changeset "**/worker/**"
+            // }
             steps{
-                echo "Packaging worker app"
+                echo "Packaging worker app into a jarfile"
                 dir('worker'){
                     sh 'mvn package -DskipTests'
                     archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
@@ -49,7 +50,7 @@ pipeline {
 
     post{
         always{
-            echo "Building multibranch pipeline for worker is completed"
+            echo "The job is completed"
         }
         failure{
             slackSend (channel: "instavote-cd", message: "Build Failed - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)")
