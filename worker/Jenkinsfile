@@ -48,7 +48,7 @@ pipeline {
         }
         stage('docker-package'){
             steps{
-              echo 'Packaging worker application with docker'
+              echo 'Packaging worker app with docker'
               script{
                 docker.withRegistry('https://index.docker.io/v1/', 'dockerlogin') {
                     def workerImage = docker.build("sakeyehp/worker:v${env.BUILD_ID}", "./worker")
